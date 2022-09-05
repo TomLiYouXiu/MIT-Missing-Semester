@@ -414,7 +414,7 @@ shell函数和脚本有如下一些不同点：
 - 函数会在当前的shell环境中执行，脚本会在单独的进程中执行。因此，函数可以对环境变量进行更改，比如改变当前工作目录，脚本则不行。脚本需要使用 [`export`](httsp://man7.org/linux/man-pages/man1/export.1p.html) 将环境变量导出，并将值传递给环境变量。
 - 与其他程序语言一样，函数可以提高代码模块性、代码复用性并创建清晰性的结构。shell脚本中往往也会包含它们自己的函数定义。
 
-# Shell 工具
+## Shell 工具
 
 ## 查看命令如何使用
 
@@ -579,3 +579,754 @@ Fasd 基于 [*frecency* ](https://developer.mozilla.org/en-US/docs/Mozilla/Tech/
 find . -type f -mmin -60 -print0 | xargs -0 ls -lt | head -10
 ~~~
 
+# 编辑器 (Vim)(这一节学过暂时跳过，多加练习即可)
+
+<iframe src="https://www.youtube.com/embed/a6Q8Na575qc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" style="box-sizing: border-box; margin: 0px; padding: 0px; text-rendering: geometricprecision; position: absolute; top: 0px; left: 0px; width: 616px; height: 346.5px;"></iframe>
+
+写作和写代码其实是两项非常不同的活动。当我们编程的时候，会经常在文件间进行切换、阅读、浏览和修改代码，而不是连续编写一大段的文字。因此代码编辑器和文本编辑器是很不同的两种工具（例如微软的 Word 与 Visual Studio Code）
+
+作为程序员，我们大部分时间都花在代码编辑上，所以花点时间掌握某个适合自己的编辑器是非常值得的。通常学习使用一个新的编辑器包含以下步骤：
+
+- 阅读教程（比如这节课以及我们为您提供的资源）
+- 坚持使用它来完成你所有的编辑工作（即使一开始这会让你的工作效率降低）
+- 随时查阅：如果某个操作看起来像是有更方便的实现方法，一般情况下真的会有。
+
+如果您能够遵循上述步骤，并且坚持使用新的编辑器完成您所有的文本编辑任务，那么学习一个复杂的代码编辑器的过程一般是这样的：头两个小时，您会学习到编辑器的基本操作，例如打开和编辑文件、保存与退出、浏览缓冲区。当学习时间累计达到20个小时之后，您使用新编辑器的效率应该已经和使用老编辑器一样快。在此之后，其益处开始显现：有了足够的知识和肌肉记忆后，使用新编辑器将大大节省你的时间。而现代文本编辑器都是些复杂且强大的工具，永远有新东西可学：学的越多，效率越高。
+
+## 该学哪个编辑器？
+
+程序员们对自己正在使用的文本编辑器通常有着 [非常强的执念](https://en.wikipedia.org/wiki/Editor_war)。
+
+现在最流行的编辑器是什么？[Stack Overflow的调查](https://insights.stackoverflow.com/survey/2019/#development-environments-and-tools)(这个调查可能并不如我们想象的那样客观，因为Stack Overflow 的用户并不能代表所有程序员)显示，[Visual Studio Code](https://code.visualstudio.com/)是目前最流行的代码编辑器。而[Vim](https://www.vim.org/) 则是最流行的基于命令行的编辑器。
+
+## Vim
+
+这门课的所有教员都使用Vim作为编辑器。Vim有着悠久历史；它始于1976年的Vi编辑器，到现在还在 不断开发中。Vim有很多聪明的设计思想，所以很多其他工具也支持Vim模式（比如，140万人安装了 [Vim emulation for VS code](https://github.com/VSCodeVim/Vim)）。即使你最后使用 其他编辑器，Vim也值得学习。
+
+由于不可能在50分钟内教授Vim的所有功能，我们会专注于解释Vim的设计哲学，教你基础知识， 并展示一部分高级功能，然后给你掌握这个工具所需要的资源。
+
+## Vim的哲学
+
+在编程的时候，你会把大量时间花在阅读/编辑而不是在写代码上。所以，Vim 是一个_多模态_编辑 器：它对于插入文字和操纵文字有不同的模式。Vim 是可编程的（可以使用 Vimscript 或者像 Python 一样的其他程序语言），Vim 的接口本身也是一个程序语言：键入操作（以及其助记名） 是命令，这些命令也是可组合的。Vim 避免了使用鼠标，因为那样太慢了；Vim 甚至避免用 上下左右键因为那样需要太多的手指移动。
+
+这样的设计哲学使得 Vim 成为了一个能跟上你思维速度的编辑器。
+
+## 编辑模式
+
+Vim的设计以大多数时间都花在阅读、浏览和进行少量编辑改动为基础，因此它具有多种操作模式：
+
+- *正常模式*：在文件中四处移动光标进行修改
+- *插入模式*：插入文本
+- *替换模式*：替换文本
+- *可视化（一般，行，块）模式*：选中文本块
+- *命令模式*：用于执行命令
+
+在不同的操作模式下，键盘敲击的含义也不同。比如，`x` 在插入模式会插入字母`x`，但是在正常模式 会删除当前光标所在的字母，在可视模式下则会删除选中文块。
+
+在默认设置下，Vim会在左下角显示当前的模式。 Vim启动时的默认模式是正常模式。通常你会把大部分 时间花在正常模式和插入模式。
+
+你可以按下 `<ESC>` （退出键） 从任何其他模式返回正常模式。 在正常模式，键入 `i` 进入插入 模式， `R` 进入替换模式， `v` 进入可视（一般）模式， `V` 进入可视（行）模式， `<C-v>` （Ctrl-V, 有时也写作 `^V`）进入可视（块）模式， `:` 进入命令模式。
+
+因为你会在使用 Vim 时大量使用 `<ESC>` 键，所以可以考虑把大小写锁定键重定义成 `<ESC>` 键 （[MacOS 教程](https://vim.fandom.com/wiki/Map_caps_lock_to_escape_in_macOS) ）。
+
+## 基本操作
+
+## 插入文本
+
+在正常模式，键入 `i` 进入插入模式。现在 Vim 跟很多其他的编辑器一样，直到你键入`<ESC>` 返回正常模式。 你只需要掌握这一点和上面介绍的所有基础知识就可以使用 Vim 来编辑文件了 （虽然如果你一直停留在插入模式内不一定高效）。
+
+## 缓存， 标签页， 窗口
+
+Vim 会维护一系列打开的文件，称为“缓存”。一个 Vim 会话包含一系列标签页，每个标签页包含 一系列窗口（分隔面板）。每个窗口显示一个缓存。跟网页浏览器等其他你熟悉的程序不一样的是， 缓存和窗口不是一一对应的关系；窗口只是视角。一个缓存可以在_多个_窗口打开，甚至在同一 个标签页内的多个窗口打开。这个功能其实很好用，比如在查看同一个文件的不同部分的时候。
+
+Vim 默认打开一个标签页，这个标签也包含一个窗口。
+
+## 命令行
+
+在正常模式下键入 `:` 进入命令行模式。 在键入 `:` 后，你的光标会立即跳到屏幕下方的命令行。 这个模式有很多功能，包括打开，保存，关闭文件，以及 [退出 Vim](https://twitter.com/iamdevloper/status/435555976687923200)。
+
+- `:q` 退出（关闭窗口）
+
+- `:w` 保存（写）
+
+- `:wq` 保存然后退出
+
+- `:e {文件名}` 打开要编辑的文件
+
+- `:ls` 显示打开的缓存
+
+- ```plaintext
+  :help {标题}
+  ```
+
+   
+
+  打开帮助文档
+
+  - `:help :w` 打开 `:w` 命令的帮助文档
+  - `:help w` 打开 `w` 移动的帮助文档
+
+## Vim 的接口其实是一种编程语言
+
+Vim 最重要的设计思想是 Vim 的界面本身是一个程序语言。键入操作 （以及他们的助记名） 本身是命令， 这些命令可以组合使用。 这使得移动和编辑更加高效，特别是一旦形成肌肉记忆。
+
+## 移动
+
+多数时候你会在正常模式下，使用移动命令在缓存中导航。在 Vim 里面移动也被称为 “名词”， 因为它们指向文字块。
+
+- 基本移动: `hjkl` （左， 下， 上， 右）
+
+- 词： `w` （下一个词）， `b` （词初）， `e` （词尾）
+
+- 行： `0` （行初）， `^` （第一个非空格字符）， `$` （行尾）
+
+- 屏幕： `H` （屏幕首行）， `M` （屏幕中间）， `L` （屏幕底部）
+
+- 翻页： `Ctrl-u` （上翻）， `Ctrl-d` （下翻）
+
+- 文件： `gg` （文件头）， `G` （文件尾）
+
+- 行数： `:{行数}<CR>` 或者 `{行数}G` ({行数}为行数)
+
+- 杂项： `%` （找到配对，比如括号或者 /* */ 之类的注释对）
+
+- 查找：
+
+   
+
+  ```plaintext
+  f{字符}
+  ```
+
+  ，
+
+   
+
+  ```plaintext
+  t{字符}
+  ```
+
+  ，
+
+   
+
+  ```plaintext
+  F{字符}
+  ```
+
+  ，
+
+   
+
+  ```plaintext
+  T{字符}
+  ```
+
+  - 查找/到 向前/向后 在本行的{字符}
+  - `,` / `;` 用于导航匹配
+
+- 搜索: `/{正则表达式}`, `n` / `N` 用于导航匹配
+
+## 选择
+
+可视化模式:
+
+- 可视化：`v`
+- 可视化行： `V`
+- 可视化块：`Ctrl+v`
+
+可以用移动命令来选中。
+
+## 编辑
+
+所有你需要用鼠标做的事， 你现在都可以用键盘：采用编辑命令和移动命令的组合来完成。 这就是 Vim 的界面开始看起来像一个程序语言的时候。Vim 的编辑命令也被称为 “动词”， 因为动词可以施动于名词。
+
+- ```plaintext
+  i
+  ```
+
+   
+
+  进入插入模式
+
+  - 但是对于操纵/编辑文本，不单想用退格键完成
+
+- `O` / `o` 在之上/之下插入行
+
+- ```plaintext
+  d{移动命令}
+  ```
+
+   
+
+  删除 {移动命令}
+
+  - 例如， `dw` 删除词, `d$` 删除到行尾, `d0` 删除到行头。
+
+- ```plaintext
+  c{移动命令}
+  ```
+
+   
+
+  改变 {移动命令}
+
+  - 例如， `cw` 改变词
+  - 比如 `d{移动命令}` 再 `i`
+
+- `x` 删除字符（等同于 `dl`）
+
+- `s` 替换字符（等同于 `xi`）
+
+- 可视化模式 + 操作
+
+  - 选中文字, `d` 删除 或者 `c` 改变
+
+- `u` 撤销, `<C-r>` 重做
+
+- `y` 复制 / “yank” （其他一些命令比如 `d` 也会复制）
+
+- `p` 粘贴
+
+- 更多值得学习的: 比如 `~` 改变字符的大小写
+
+## 计数
+
+你可以用一个计数来结合“名词”和“动词”，这会执行指定操作若干次。
+
+- `3w` 向前移动三个词
+- `5j` 向下移动5行
+- `7dw` 删除7个词
+
+## 修饰语
+
+你可以用修饰语改变“名词”的意义。修饰语有 `i`，表示“内部”或者“在内“，和 `a`， 表示”周围“。
+
+- `ci(` 改变当前括号内的内容
+- `ci[` 改变当前方括号内的内容
+- `da'` 删除一个单引号字符串， 包括周围的单引号
+
+## 演示
+
+这里是一个有问题的 [fizz buzz](https://en.wikipedia.org/wiki/Fizz_buzz) 实现：
+
+```
+def fizz_buzz(limit):
+    for i in range(limit):
+        if i % 3 == 0:
+            print('fizz')
+        if i % 5 == 0:
+            print('fizz')
+        if i % 3 and i % 5:
+            print(i)
+
+def main():
+    fizz_buzz(10)
+```
+
+我们会修复以下问题：
+
+- 主函数没有被调用
+- 从 0 而不是 1 开始
+- 在 15 的整数倍的时候在不用行打印 “fizz” 和 “buzz”
+- 在 5 的整数倍的时候打印 “fizz”
+- 采用硬编码的参数 10 而不是从命令控制行读取参数
+- 主函数没有被调用
+  - `G` 文件尾
+  - `o` 向下打开一个新行
+  - 输入 “if **name** …”
+- 从 0 而不是 1 开始
+  - 搜索 `/range`
+  - `ww` 向前移动两个词
+  - `i` 插入文字， “1, “
+  - `ea` 在 limit 后插入， “+1”
+- 在新的一行 “fizzbuzz”
+  - `jj$i` 插入文字到行尾
+  - 加入 “, end=’’”
+  - `jj.` 重复第二个打印
+  - `jjo` 在 if 打开一行
+  - 加入 “else: print()”
+- fizz fizz
+  - `ci'` 变到 fizz
+- 命令控制行参数
+  - `ggO` 向上打开
+  - “import sys”
+  - `/10`
+  - `ci(` to “int(sys.argv[1])”
+
+展示详情请观看课程视频。比较上面用 Vim 的操作和你可能使用其他程序的操作。 值得一提的是 Vim 需要很少的键盘操作，允许你编辑的速度跟上你思维的速度。
+
+## 自定义 Vim
+
+Vim 由一个位于 `~/.vimrc` 的文本配置文件（包含 Vim 脚本命令）。 你可能会启用很多基本 设置。
+
+我们提供一个文档详细的基本设置，你可以用它当作你的初始设置。我们推荐使用这个设置因为 它修复了一些 Vim 默认设置奇怪行为。 **在[这儿](https://missing-semester-cn.github.io/2020/files/vimrc) 下载我们的设置，然后将它保存成 `~/.vimrc`.**
+
+Vim 能够被重度自定义，花时间探索自定义选项是值得的。你可以参考其他人的在GitHub 上共享的设置文件，比如，你的授课人的 Vim 设置 ([Anish](https://github.com/anishathalye/dotfiles/blob/master/vimrc), [Jon](https://github.com/jonhoo/configs/blob/master/editor/.config/nvim/init.vim) (uses [neovim](https://neovim.io/)), [Jose](https://github.com/JJGO/dotfiles/blob/master/vim/.vimrc))。 有很多好的博客文章也聊到了这个话题。尽量不要复制粘贴别人的整个设置文件， 而是阅读和理解它，然后采用对你有用的部分。
+
+## 扩展 Vim
+
+Vim 有很多扩展插件。跟很多互联网上已经过时的建议相反，你_不_需要在 Vim 使用一个插件 管理器（从 Vim 8.0 开始）。你可以使用内置的插件管理系统。只需要创建一个 `~/.vim/pack/vendor/start/` 的文件夹，然后把插件放到这里（比如通过 `git clone`）。
+
+以下是一些我们最爱的插件：
+
+- [ctrlp.vim](https://github.com/ctrlpvim/ctrlp.vim): 模糊文件查找
+- [ack.vim](https://github.com/mileszs/ack.vim): 代码搜索
+- [nerdtree](https://github.com/scrooloose/nerdtree): 文件浏览器
+- [vim-easymotion](https://github.com/easymotion/vim-easymotion): 魔术操作
+
+我们尽量避免在这里提供一份冗长的插件列表。你可以查看讲师们的开源的配置文件 ([Anish](https://github.com/anishathalye/dotfiles), [Jon](https://github.com/jonhoo/configs), [Jose](https://github.com/JJGO/dotfiles)) 来看看我们使用的其他插件。 浏览 [Vim Awesome](https://vimawesome.com/) 来了解一些很棒的插件。 这个话题也有很多博客文章：搜索 “best Vim plugins”。
+
+## 其他程序的 Vim 模式
+
+很多工具提供了 Vim 模式。这些 Vim 模式的质量参差不齐；取决于具体工具， 有的提供了 很多酷炫的 Vim 功能，但是大多数对基本功能支持的很好。
+
+## Shell
+
+如果你是一个 Bash 用户，用 `set -o vi`。如果你用 Zsh：`bindkey -v`。Fish 用 `fish_vi_key_bindings`。另外，不管利用什么 shell，你可以 `export EDITOR=vim`。 这是一个用来决定当一个程序需要启动编辑时启动哪个的环境变量。 例如，`git` 会使用这个编辑器来编辑 commit 信息。
+
+## Readline
+
+很多程序使用 [GNU Readline](https://tiswww.case.edu/php/chet/readline/rltop.html) 库来作为 它们的命令控制行界面。Readline 也支持基本的 Vim 模式， 可以通过在 `~/.inputrc` 添加如下行开启：
+
+```
+set editing-mode vi
+```
+
+比如，在这个设置下，Python REPL 会支持 Vim 快捷键。
+
+## 其他
+
+甚至有 Vim 的网页浏览快捷键 [browsers](http://vim.wikia.com/wiki/Vim_key_bindings_for_web_browsers), 受欢迎的有 用于 Google Chrome 的 [Vimium](https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb?hl=en) 和用于 Firefox 的 [Tridactyl](https://github.com/tridactyl/tridactyl)。 你甚至可以在 [Jupyter notebooks](https://github.com/lambdalisue/jupyter-vim-binding) 中用 Vim 快捷键。 [这个列表](https://reversed.top/2016-08-13/big-list-of-vim-like-software) 中列举了支持类 vim 键位绑定的软件。
+
+## Vim 进阶
+
+这里我们提供了一些展示这个编辑器能力的例子。我们无法把所有的这样的事情都教给你，但是你 可以在使用中学习。一个好的对策是: 当你在使用你的编辑器的时候感觉 “一定有更好的方法来做这个”， 那么很可能真的有：上网搜寻一下。
+
+## 搜索和替换
+
+`:s` （替换）命令（[文档](http://vim.wikia.com/wiki/Search_and_replace)）。
+
+- ```plaintext
+  %s/foo/bar/g
+  ```
+
+  - 在整个文件中将 foo 全局替换成 bar
+
+- ```plaintext
+  %s/\[.*\](\(.*\))/\1/g
+  ```
+
+  - 将有命名的 Markdown 链接替换成简单 URLs
+
+## 多窗口
+
+- 用 `:sp` / `:vsp` 来分割窗口
+- 同一个缓存可以在多个窗口中显示。
+
+## 宏
+
+- `q{字符}` 来开始在寄存器`{字符}`中录制宏
+
+- `q`停止录制
+
+- `@{字符}` 重放宏
+
+- 宏的执行遇错误会停止
+
+- `{计数}@{字符}`执行一个宏{计数}次
+
+- 宏可以递归
+
+  - 首先用`q{字符}q`清除宏
+  - 录制该宏，用 `@{字符}` 来递归调用该宏 （在录制完成之前不会有任何操作）
+
+- 例子：将 xml 转成 json (
+
+  file
+
+  )
+
+  - 一个有 “name” / “email” 键对象的数组
+
+  - 用一个 Python 程序？
+
+  - 用 sed / 正则表达式
+
+    - `g/people/d`
+    - `%s/<person>/{/g`
+    - `%s/<name>\(.*\)<\/name>/"name": "\1",/g`
+    - …
+
+  - Vim 命令 / 宏
+
+    - `Gdd`, `ggdd` 删除第一行和最后一行
+
+    - 格式化最后一个元素的宏 （寄存器
+
+       
+
+      ```plaintext
+      e
+      ```
+
+      ）
+
+      - 跳转到有 `<name>` 的行
+      - `qe^r"f>s": "<ESC>f<C"<ESC>q`
+
+    - 格式化一个
+
+      的宏
+
+      - 跳转到有 `<person>` 的行
+      - `qpS{<ESC>j@eA,<ESC>j@ejS},<ESC>q`
+
+    - 格式化一个
+
+      标签然后转到另外一个的宏
+
+      - 跳转到有 `<person>` 的行
+      - `qq@pjq`
+
+    - 执行宏到文件尾
+
+      - `999@q`
+
+    - 手动移除最后的 `,` 然后加上 `[` 和 `]` 分隔符
+
+## 扩展资料
+
+- `vimtutor` 是一个 Vim 安装时自带的教程
+- [Vim Adventures](https://vim-adventures.com/) 是一个学习使用 Vim 的游戏
+- [Vim Tips Wiki](http://vim.wikia.com/wiki/Vim_Tips_Wiki)
+- [Vim Advent Calendar](https://vimways.org/2019/) 有很多 Vim 小技巧
+- [Vim Golf](http://www.vimgolf.com/) 是用 Vim 的用户界面作为程序语言的 [code golf](https://en.wikipedia.org/wiki/Code_golf)
+- [Vi/Vim Stack Exchange](https://vi.stackexchange.com/)
+- [Vim Screencasts](http://vimcasts.org/)
+- [Practical Vim](https://pragprog.com/titles/dnvim2/)（书籍）
+
+## 课后练习
+
+[习题解答](https://missing-semester-cn.github.io/missing-notes-and-solutions/2020/solutions//editors-solution)
+
+1. 完成 `vimtutor`。 备注：它在一个 [80x24](https://en.wikipedia.org/wiki/VT100)（80 列，24 行） 终端窗口看起来效果最好。
+
+2. 下载我们提供的 [vimrc](https://missing-semester-cn.github.io/2020/files/vimrc)，然后把它保存到 `~/.vimrc`。 通读这个注释详细的文件 （用 Vim!）， 然后观察 Vim 在这个新的设置下看起来和使用起来有哪些细微的区别。
+
+3. 安装和配置一个插件：
+
+    
+
+   ctrlp.vim
+
+   .
+
+   1. 用 `mkdir -p ~/.vim/pack/vendor/start` 创建插件文件夹
+   2. 下载这个插件： `cd ~/.vim/pack/vendor/start; git clone https://github.com/ctrlpvim/ctrlp.vim`
+   3. 阅读这个插件的 [文档](https://github.com/ctrlpvim/ctrlp.vim/blob/master/readme.md)。 尝试用 CtrlP 来在一个工程文件夹里定位一个文件， 打开 Vim, 然后用 Vim 命令控制行开始 `:CtrlP`.
+   4. 自定义 CtrlP： 添加 [configuration](https://github.com/ctrlpvim/ctrlp.vim/blob/master/readme.md#basic-options) 到你的 `~/.vimrc` 来用按 Ctrl-P 打开 CtrlP
+
+4. 练习使用 Vim, 在你自己的机器上重做 [演示](https://missing-semester-cn.github.io/2020/editors/#demo)。
+
+5. 下个月用 Vim 完成_所有的_文件编辑。每当不够高效的时候，或者你感觉 “一定有一个更好的方式”时， 尝试求助搜索引擎，很有可能有一个更好的方式。如果你遇到难题，可以来我们的答疑时间或者给我们发邮件。
+
+6. 在其他工具中设置 Vim 快捷键 （见上面的操作指南）。
+
+7. 进一步自定义你的 `~/.vimrc` 和安装更多插件。
+
+8. （高阶）用 Vim 宏将 XML 转换到 JSON ([例子文件](https://missing-semester-cn.github.io/2020/files/example-data.xml))。 尝试着先完全自己做，但是在你卡住的时候可以查看上面[宏](https://missing-semester-cn.github.io/2020/editors/#macros) 章节。
+
+# 数据整理
+
+您是否曾经有过这样的需求，将某种格式存储的数据转换成另外一种格式? 肯定有过，对吧！ 这也正是我们这节课所要讲授的主要内容。具体来讲，我们需要不断地对数据进行处理，直到得到我们想要的最终结果。
+
+在之前的课程中，其实我们已经接触到了一些数据整理的基本技术。可以这么说，每当您使用管道运算符的时候，其实就是在进行某种形式的数据整理。
+
+例如这样一条命令 `journalctl | grep -i intel`，它会找到所有包含intel(不区分大小写)的系统日志。您可能并不认为这是数据整理，但是它确实将某种形式的数据（全部系统日志）转换成了另外一种形式的数据（仅包含intel的日志）。大多数情况下，数据整理需要您能够明确哪些工具可以被用来达成特定数据整理的目的，并且明白如何组合使用这些工具。
+
+让我们从头讲起。既然是学习数据整理，那有两样东西自然是必不可少的：用来整理的数据以及相关的应用场景。日志处理通常是一个比较典型的使用场景，因为我们经常需要在日志中查找某些信息，这种情况下通读日志是不现实的。现在，让我们研究一下系统日志，看看哪些用户曾经尝试过登录我们的服务器：
+
+```
+ssh myserver journalctl
+```
+
+内容太多了。现在让我们把涉及 sshd 的信息过滤出来：
+
+```
+ssh myserver journalctl | grep sshd
+```
+
+注意，这里我们使用管道将一个远程服务器上的文件传递给本机的 `grep` 程序！ `ssh` 太牛了，下一节课我们会讲授命令行环境，届时我们会详细讨论 `ssh` 的相关内容。此时我们打印出的内容，仍然比我们需要的要多得多，读起来也非常费劲。我们来改进一下：
+
+```
+ssh myserver 'journalctl | grep sshd | grep "Disconnected from"' | less
+```
+
+多出来的引号是什么作用呢？这么说吧，我们的日志是一个非常大的文件，把这么大的文件流直接传输到我们本地的电脑上再进行过滤是对流量的一种浪费。因此我们采取另外一种方式，我们先在远端机器上过滤文本内容，然后再将结果传输到本机。 `less` 为我们创建来一个文件分页器，使我们可以通过翻页的方式浏览较长的文本。为了进一步节省流量，我们甚至可以将当前过滤出的日志保存到文件中，这样后续就不需要再次通过网络访问该文件了：
+
+```
+$ ssh myserver 'journalctl | grep sshd | grep "Disconnected from"' > ssh.log
+$ less ssh.log
+```
+
+过滤结果中仍然包含不少没用的数据。我们有很多办法可以删除这些无用的数据，但是让我们先研究一下 `sed` 这个非常强大的工具。
+
+`sed` 是一个基于文本编辑器`ed`构建的”流编辑器” 。在 `sed` 中，您基本上是利用一些简短的命令来修改文件，而不是直接操作文件的内容（尽管您也可以选择这样做）。相关的命令行非常多，但是最常用的是 `s`，即*替换*命令，例如我们可以这样写：
+
+```
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed 's/.*Disconnected from //'
+```
+
+上面这段命令中，我们使用了一段简单的*正则表达式*。正则表达式是一种非常强大的工具，可以让我们基于某种模式来对字符串进行匹配。`s` 命令的语法如下：`s/REGEX/SUBSTITUTION/`, 其中 `REGEX` 部分是我们需要使用的正则表达式，而 `SUBSTITUTION` 是用于替换匹配结果的文本。
+
+## 正则表达式
+
+正则表达式非常常见也非常有用，值得您花些时间去理解它。让我们从这一句正则表达式开始学习： `/.*Disconnected from /`。正则表达式通常以（尽管并不总是） `/`开始和结束。大多数的 ASCII 字符都表示它们本来的含义，但是有一些字符确实具有表示匹配行为的“特殊”含义。不同字符所表示的含义，根据正则表达式的实现方式不同，也会有所变化，这一点确实令人沮丧。常见的模式有：
+
+- `.` 除换行符之外的”任意单个字符”
+- `*` 匹配前面字符零次或多次
+- `+` 匹配前面字符一次或多次
+- `[abc]` 匹配 `a`, `b` 和 `c` 中的任意一个
+- `(RX1|RX2)` 任何能够匹配`RX1` 或 `RX2`的结果
+- `^` 行首
+- `$` 行尾
+
+`sed` 的正则表达式有些时候是比较奇怪的，它需要你在这些模式前添加`\`才能使其具有特殊含义。或者，您也可以添加`-E`选项来支持这些匹配。
+
+回过头我们再看`/.*Disconnected from /`，我们会发现这个正则表达式可以匹配任何以若干任意字符开头，并接着包含”Disconnected from “的字符串。这也正式我们所希望的。但是请注意，正则表达式并不容易写对。如果有人将 “Disconnected from” 作为自己的用户名会怎样呢？
+
+```
+Jan 17 03:13:00 thesquareplanet.com sshd[2631]: Disconnected from invalid user Disconnected from 46.97.239.16 port 55920 [preauth]
+```
+
+正则表达式会如何匹配？`*` 和 `+` 在默认情况下是贪婪模式，也就是说，它们会尽可能多的匹配文本。因此对上述字符串的匹配结果如下：
+
+```
+46.97.239.16 port 55920 [preauth]
+```
+
+这可不是我们想要的结果。对于某些正则表达式的实现来说，您可以给 `*` 或 `+` 增加一个`?` 后缀使其变成非贪婪模式，但是很可惜 `sed` 并不支持该后缀。不过，我们可以切换到 perl 的命令行模式，该模式支持编写这样的正则表达式：
+
+```
+perl -pe 's/.*?Disconnected from //'
+```
+
+让我们回到 `sed` 命令并使用它完成后续的任务，毕竟对于这一类任务，`sed`是最常见的工具。`sed` 还可以非常方便的做一些事情，例如打印匹配后的内容，一次调用中进行多次替换搜索等。但是这些内容我们并不会在此进行介绍。`sed` 本身是一个非常全能的工具，但是在具体功能上往往能找到更好的工具作为替代品。
+
+好的，我们还需要去掉用户名后面的后缀，应该如何操作呢？
+
+想要匹配用户名后面的文本，尤其是当这里的用户名可以包含空格时，这个问题变得非常棘手！这里我们需要做的是匹配*一整行*：
+
+```
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user .* [^ ]+ port [0-9]+( \[preauth\])?$//'
+```
+
+让我们借助正则表达式在线调试工具[regex debugger](https://regex101.com/r/qqbZqh/2) 来理解这段表达式。OK，开始的部分和以前是一样的，随后，我们匹配两种类型的“user”（在日志中基于两种前缀区分）。再然后我们匹配属于用户名的所有字符。接着，再匹配任意一个单词（`[^ ]+` 会匹配任意非空且不包含空格的序列）。紧接着后面匹配单“port”和它后面的一串数字，以及可能存在的后缀`[preauth]`，最后再匹配行尾。
+
+注意，这样做的话，即使用户名是“Disconnected from”，对匹配结果也不会有任何影响，您知道这是为什么吗？
+
+问题还没有完全解决，日志的内容全部被替换成了空字符串，整个日志的内容因此都被删除了。我们实际上希望能够将用户名*保留*下来。对此，我们可以使用“捕获组（capture groups）”来完成。被圆括号内的正则表达式匹配到的文本，都会被存入一系列以编号区分的捕获组中。捕获组的内容可以在替换字符串时使用（有些正则表达式的引擎甚至支持替换表达式本身），例如`\1`、 `\2`、`\3`等等，因此可以使用如下命令：
+
+```
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+```
+
+想必您已经意识到了，为了完成某种匹配，我们最终可能会写出非常复杂的正则表达式。例如，这里有一篇关于如何匹配电子邮箱地址的文章[e-mail address](https://www.regular-expressions.info/email.html)，匹配电子邮箱可一点[也不简单](https://emailregex.com/)。网络上还有很多关于如何匹配电子邮箱地址的[讨论](https://stackoverflow.com/questions/201323/how-to-validate-an-email-address-using-a-regular-expression/1917982)。人们还为其编写了[测试用例](https://fightingforalostcause.net/content/misc/2006/compare-email-regex.php)及 [测试矩阵](https://mathiasbynens.be/demo/url-regex)。您甚至可以编写一个用于判断一个数[是否为质数](https://www.noulakaz.net/2007/03/18/a-regular-expression-to-check-for-prime-numbers/)的正则表达式。
+
+正则表达式是出了名的难以写对，但是它仍然会是您强大的常备工具之一。
+
+## 回到数据整理
+
+OK，现在我们有如下表达式：
+
+```
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+```
+
+`sed` 还可以做很多各种各样有趣的事情，例如文本注入：(使用 `i` 命令)，打印特定的行 (使用 `p`命令)，基于索引选择特定行等等。详情请见`man sed`!
+
+现在，我们已经得到了一个包含用户名的列表，列表中的用户都曾经尝试过登录我们的系统。但这还不够，让我们过滤出那些最常出现的用户：
+
+```
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+ | sort | uniq -c
+```
+
+`sort` 会对其输入数据进行排序。`uniq -c` 会把连续出现的行折叠为一行并使用出现次数作为前缀。我们希望按照出现次数排序，过滤出最常出现的用户名：
+
+```
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+ | sort | uniq -c
+ | sort -nk1,1 | tail -n10
+```
+
+`sort -n` 会按照数字顺序对输入进行排序（默认情况下是按照字典序排序 `-k1,1` 则表示“仅基于以空格分割的第一列进行排序”。`,n` 部分表示“仅排序到第n个部分”，默认情况是到行尾。就本例来说，针对整个行进行排序也没有任何问题，我们这里主要是为了学习这一用法！
+
+如果我们希望得到登录次数最少的用户，我们可以使用 `head` 来代替`tail`。或者使用`sort -r`来进行倒序排序。
+
+相当不错。但我们只想获取用户名，而且不要一行一个地显示。
+
+```
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+ | sort | uniq -c
+ | sort -nk1,1 | tail -n10
+ | awk '{print $2}' | paste -sd,
+```
+
+如果您使用的是 MacOS：注意这个命令并不能配合 MacOS 系统默认的 BSD `paste`使用。参考[课程概览与 shell](https://missing-semester-cn.github.io/2020/course-shell/)的习题内容获取更多相关信息。
+
+我们可以利用 `paste`命令来合并行(`-s`)，并指定一个分隔符进行分割 (`-d`)，那`awk`的作用又是什么呢？
+
+## awk – 另外一种编辑器
+
+`awk` 其实是一种编程语言，只不过它碰巧非常善于处理文本。关于 `awk` 可以介绍的内容太多了，限于篇幅，这里我们仅介绍一些基础知识。
+
+首先， `{print $2}` 的作用是什么？ `awk` 程序接受一个模式串（可选），以及一个代码块，指定当模式匹配时应该做何种操作。默认当模式串即匹配所有行（上面命令中当用法）。 在代码块中，`$0` 表示整行的内容，`$1` 到 `$n` 为一行中的 n 个区域，区域的分割基于 `awk` 的域分隔符（默认是空格，可以通过`-F`来修改）。在这个例子中，我们的代码意思是：对于每一行文本，打印其第二个部分，也就是用户名。
+
+让我们康康，还有什么炫酷的操作可以做。让我们统计一下所有以`c` 开头，以 `e` 结尾，并且仅尝试过一次登录的用户。
+
+```
+ | awk '$1 == 1 && $2 ~ /^c[^ ]*e$/ { print $2 }' | wc -l
+```
+
+让我们好好分析一下。首先，注意这次我们为 `awk`指定了一个匹配模式串（也就是`{...}`前面的那部分内容）。该匹配要求文本的第一部分需要等于1（这部分刚好是`uniq -c`得到的计数值），然后其第二部分必须满足给定的一个正则表达式。代码块中的内容则表示打印用户名。然后我们使用 `wc -l` 统计输出结果的行数。
+
+不过，既然 `awk` 是一种编程语言，那么则可以这样：
+
+```
+BEGIN { rows = 0 }
+$1 == 1 && $2 ~ /^c[^ ]*e$/ { rows += $1 }
+END { print rows }
+```
+
+`BEGIN` 也是一种模式，它会匹配输入的开头（ `END` 则匹配结尾）。然后，对每一行第一个部分进行累加，最后将结果输出。事实上，我们完全可以抛弃 `grep` 和 `sed` ，因为 `awk` 就可以[解决所有问题](https://backreference.org/2010/02/10/idiomatic-awk)。至于怎么做，就留给读者们做课后练习吧。
+
+## 分析数据
+
+想做数学计算也是可以的！例如这样，您可以将每行的数字加起来：
+
+```
+ | paste -sd+ | bc -l
+```
+
+下面这种更加复杂的表达式也可以：
+
+```
+echo "2*($(data | paste -sd+))" | bc -l
+```
+
+您可以通过多种方式获取统计数据。如果已经安装了R语言，[`st`](https://github.com/nferraz/st)是个不错的选择：
+
+```
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+ | sort | uniq -c
+ | awk '{print $1}' | R --slave -e 'x <- scan(file="stdin", quiet=TRUE); summary(x)'
+```
+
+R 也是一种编程语言，它非常适合被用来进行数据分析和[绘制图表](https://ggplot2.tidyverse.org/)。这里我们不会讲的特别详细， 您只需要知道`summary` 可以打印某个向量的统计结果。我们将输入的一系列数据存放在一个向量后，利用R语言就可以得到我们想要的统计数据。
+
+如果您希望绘制一些简单的图表， `gnuplot` 可以帮助到您：
+
+```
+ssh myserver journalctl
+ | grep sshd
+ | grep "Disconnected from"
+ | sed -E 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/'
+ | sort | uniq -c
+ | sort -nk1,1 | tail -n10
+ | gnuplot -p -e 'set boxwidth 0.5; plot "-" using 1:xtic(2) with boxes'
+```
+
+## 利用数据整理来确定参数
+
+有时候您要利用数据整理技术从一长串列表里找出你所需要安装或移除的东西。我们之前讨论的相关技术配合 `xargs` 即可实现：
+
+```
+rustup toolchain list | grep nightly | grep -vE "nightly-x86" | sed 's/-x86.*//' | xargs rustup toolchain uninstall
+```
+
+## 整理二进制数据
+
+虽然到目前为止我们的讨论都是基于文本数据，但对于二进制文件其实同样有用。例如我们可以用 ffmpeg 从相机中捕获一张图片，将其转换成灰度图后通过SSH将压缩后的文件发送到远端服务器，并在那里解压、存档并显示。
+
+```
+ffmpeg -loglevel panic -i /dev/video0 -frames 1 -f image2 -
+ | convert - -colorspace gray -
+ | gzip
+ | ssh mymachine 'gzip -d | tee copy.jpg | env DISPLAY=:0 feh -'
+```
+
+## 课后练习
+
+[习题解答](https://missing-semester-cn.github.io/missing-notes-and-solutions/2020/solutions//data-wrangling-solution)
+
+1. 学习一下这篇简短的 [交互式正则表达式教程](https://regexone.com/).
+
+2. 统计words文件 (`/usr/share/dict/words`) 中包含至少三个`a` 且不以`'s` 结尾的单词个数。这些单词中，出现频率前三的末尾两个字母是什么？ `sed`的 `y`命令，或者 `tr` 程序也许可以帮你解决大小写的问题。共存在多少种词尾两字母组合？还有一个很 有挑战性的问题：哪个组合从未出现过？
+
+3. 进行原地替换听上去很有诱惑力，例如： `sed s/REGEX/SUBSTITUTION/ input.txt > input.txt`。但是这并不是一个明智的做法，为什么呢？还是说只有 `sed`是这样的? 查看 `man sed` 来完成这个问题
+
+4. 找出您最近十次开机的开机时间平均数、中位数和最长时间。在Linux上需要用到
+
+    
+
+   ```plaintext
+   journalctl
+   ```
+
+    
+
+   ，而在 macOS 上使用
+
+    
+
+   ```plaintext
+   log show
+   ```
+
+   。找到每次起到开始和结束时的时间戳。在Linux上类似这样操作：
+
+   ```
+   Logs begin at ...
+   ```
+
+   和
+
+   ```
+   systemd[577]: Startup finished in ...
+   ```
+
+   在 macOS 上, [查找](https://eclecticlight.co/2018/03/21/macos-unified-log-3-finding-your-way/):
+
+   ```
+   === system boot:
+   ```
+
+   和
+
+   ```
+   Previous shutdown cause: 5
+   ```
+
+5. 查看之前三次重启启动信息中不同的部分(参见 `journalctl`的`-b` 选项)。将这一任务分为几个步骤，首先获取之前三次启动的启动日志，也许获取启动日志的命令就有合适的选项可以帮助您提取前三次启动的日志，亦或者您可以使用`sed '0,/STRING/d'` 来删除`STRING`匹配到的字符串前面的全部内容。然后，过滤掉每次都不相同的部分，例如时间戳。下一步，重复记录输入行并对其计数(可以使用`uniq` )。最后，删除所有出现过3次的内容（因为这些内容是三次启动日志中的重复部分）。
+
+6. 在网上找一个类似 [这个](https://stats.wikimedia.org/EN/TablesWikipediaZZ.htm) 或者[这个](https://ucr.fbi.gov/crime-in-the-u.s/2016/crime-in-the-u.s.-2016/topic-pages/tables/table-1)的数据集。或者从[这里](https://www.springboard.com/blog/free-public-data-sets-data-science-project/)找一些。使用 `curl` 获取数据集并提取其中两列数据，如果您想要获取的是HTML数据，那么[`pup`](https://github.com/EricChiang/pup)可能会更有帮助。对于JSON类型的数据，可以试试[`jq`](https://stedolan.github.io/jq/)。请使用一条指令来找出其中一列的最大值和最小值，用另外一条指令计算两列之间差的总和。
